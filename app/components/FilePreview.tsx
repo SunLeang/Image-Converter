@@ -1,4 +1,3 @@
-// components/FilePreview.tsx
 'use client';
 
 import React from 'react';
