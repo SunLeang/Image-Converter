@@ -1,8 +1,8 @@
 export interface FileWithPreview extends File {
   preview: string;
   id: string;
-  
-}export interface ConvertedImage {
+}
+export interface ConvertedImage {
   id: string;
   originalName: string;
   convertedUrl: string;
@@ -11,3 +11,8 @@ export interface FileWithPreview extends File {
 }
 
 export type ConversionFormat = 'jpeg' | 'png';
+
+export interface ConversionOptions {
+  format: ConversionFormat;
+  quality: number;
+}

@@ -5,14 +5,26 @@ import { v4 as uuidv4 } from "uuid";
 import { ArrowRight, RefreshCw } from "lucide-react";
 import Header from "./components/Header";
 import ProgressBar from "./components/ProgressBar";
-import { FileWithPreview, ConvertedImage, ConversionFormat } from "./lib/types";
+import {
+  FileWithPreview,
+  ConvertedImage,
+  ConversionFormat,
+  ConversionOptions,
+} from "./lib/types";
 import DropzoneUploader from "./components/DropzoneUploader";
 import ResultsDisplay from "./components/ResultsDisplay";
+import ConversionOptionsComponent from "./components/ConversionOptions";
 
 export default function Home() {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [converting, setConverting] = useState(false);
-  const [outputFormat, setOutputFormat] = useState<ConversionFormat>("jpeg");
+
+  const [conversionOptions, setConversionOptions] = useState<ConversionOptions>(
+    {
+      format: "jpeg",
+      quality: 90,
+    }
+  );
 
   const [conversionProgress, setConversionProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
@@ -60,10 +72,13 @@ export default function Home() {
       // Create mock converted images
       const mockConvertedImages = files.map((file) => ({
         id: uuidv4(),
-        originalName: file.name.replace(".webp", `.${outputFormat}`),
+        originalName: file.name.replace(
+          ".webp",
+          `.${conversionOptions.format}`
+        ),
         convertedUrl: file.preview,
-        format: outputFormat,
-        size: file.size * 0.8
+        format: conversionOptions.format,
+        size: file.size * 0.8,
       }));
 
       setConvertedImages(mockConvertedImages);
@@ -88,33 +103,17 @@ export default function Home() {
 
       {!showResults && (
         <div className="mt-10">
-          {/* Replace the old dropzone with the new DropzoneUploader component */}
           <DropzoneUploader files={files} setFiles={setFiles} />
 
           {files.length > 0 && (
             <>
               <div className="mt-8">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">Selected Format</h3>
-                  <div>
-                    <label className="text-sm text-gray-600 mr-2">
-                      Convert to:
-                    </label>
-                    <select
-                      value={outputFormat}
-                      onChange={(e) =>
-                        setOutputFormat(e.target.value as ConversionFormat)
-                      }
-                      className="px-3 py-1 border rounded-md text-sm"
-                    >
-                      <option value="jpeg">JPEG</option>
-                      <option value="png">PNG</option>
-                    </select>
-                  </div>
-                </div>
+                <ConversionOptionsComponent
+                  options={conversionOptions}
+                  setOptions={setConversionOptions}
+                />
               </div>
 
-              {/* Progress bar appears during conversion */}
               {converting && (
                 <div className="my-8 max-w-md mx-auto">
                   <ProgressBar
@@ -140,7 +139,14 @@ export default function Home() {
                     <span>Converting...</span>
                   ) : (
                     <>
-                      <span>Convert to {outputFormat.toUpperCase()}</span>
+                      <span>
+                        Convert to {conversionOptions.format.toUpperCase()}
+                      </span>
+                      {conversionOptions.format === "jpeg" && (
+                        <span className="ml-1 text-xs opacity-80">
+                          ({conversionOptions.quality}%)
+                        </span>
+                      )}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}
@@ -151,7 +157,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Show conversion results using the new ResultsDisplay component */}
       {showResults && (
         <div className="mt-10">
           <div className="flex justify-between items-center mb-6">
