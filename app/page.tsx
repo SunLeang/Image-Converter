@@ -1,21 +1,19 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useDropzone } from "react-dropzone";
 import { v4 as uuidv4 } from "uuid";
-import { Upload, ArrowRight, RefreshCw } from "lucide-react";
+import { ArrowRight, RefreshCw } from "lucide-react";
 import Header from "./components/Header";
-import FilePreview from "./components/FilePreview";
 import ProgressBar from "./components/ProgressBar";
-import ImagePreview from "./components/ImagePreview";
 import { FileWithPreview, ConvertedImage, ConversionFormat } from "./lib/types";
+import DropzoneUploader from "./components/DropzoneUploader";
+import ResultsDisplay from "./components/ResultsDisplay";
 
 export default function Home() {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [converting, setConverting] = useState(false);
   const [outputFormat, setOutputFormat] = useState<ConversionFormat>("jpeg");
 
-  // New states for UI testing
   const [conversionProgress, setConversionProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -32,34 +30,6 @@ export default function Home() {
       );
     };
   }, [files, convertedImages]);
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map((file) => {
-      return Object.assign(file, {
-        preview: URL.createObjectURL(file),
-        id: uuidv4(),
-      });
-    }) as FileWithPreview[];
-
-    setFiles((prev) => [...prev, ...newFiles]);
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      "image/webp": [],
-    },
-  });
-
-  const removeFile = (id: string) => {
-    setFiles((prevFiles) => {
-      const fileToRemove = prevFiles.find((file) => file.id === id);
-      if (fileToRemove) {
-        URL.revokeObjectURL(fileToRemove.preview);
-      }
-      return prevFiles.filter((file) => file.id !== id);
-    });
-  };
 
   // Simulate the conversion process with progress
   const handleConversion = () => {
@@ -93,7 +63,7 @@ export default function Home() {
         originalName: file.name.replace(".webp", `.${outputFormat}`),
         convertedUrl: file.preview,
         format: outputFormat,
-        size: file.size * 0.8, // Simulate smaller file size after conversion
+        size: file.size * 0.8
       }));
 
       setConvertedImages(mockConvertedImages);
@@ -102,7 +72,6 @@ export default function Home() {
   };
 
   const handleDownload = (image: ConvertedImage) => {
-
     alert(`Downloading ${image.originalName}`);
   };
 
@@ -119,34 +88,14 @@ export default function Home() {
 
       {!showResults && (
         <div className="mt-10">
-          <div
-            {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-              ${
-                isDragActive
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-300 hover:border-gray-400"
-              }`}
-          >
-            <input {...getInputProps()} />
-            <Upload className="h-12 w-12 mx-auto text-gray-400" />
-            <p className="mt-4 text-gray-600">
-              {isDragActive
-                ? "Drop the WebP images here..."
-                : "Drag & drop your WebP images here, or click to select files"}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-              Only .webp files are supported
-            </p>
-          </div>
+          {/* Replace the old dropzone with the new DropzoneUploader component */}
+          <DropzoneUploader files={files} setFiles={setFiles} />
 
           {files.length > 0 && (
             <>
               <div className="mt-8">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">
-                    Selected Files ({files.length})
-                  </h3>
+                  <h3 className="text-lg font-medium">Selected Format</h3>
                   <div>
                     <label className="text-sm text-gray-600 mr-2">
                       Convert to:
@@ -162,16 +111,6 @@ export default function Home() {
                       <option value="png">PNG</option>
                     </select>
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {files.map((file) => (
-                    <FilePreview
-                      key={file.id}
-                      file={file}
-                      onRemove={removeFile}
-                    />
-                  ))}
                 </div>
               </div>
 
@@ -212,11 +151,11 @@ export default function Home() {
         </div>
       )}
 
-      {/* Show conversion results */}
+      {/* Show conversion results using the new ResultsDisplay component */}
       {showResults && (
         <div className="mt-10">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Converted Images</h2>
+            <h2 className="text-2xl font-bold">Results</h2>
             <button
               onClick={resetConversion}
               className="flex items-center px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 transition-colors"
@@ -226,15 +165,7 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-            {convertedImages.map((image) => (
-              <ImagePreview
-                key={image.id}
-                image={image}
-                onDownload={handleDownload}
-              />
-            ))}
-          </div>
+          <ResultsDisplay convertedImages={convertedImages} isLoading={false} />
         </div>
       )}
     </main>
