@@ -1,29 +1,32 @@
-'use client';
+"use client";
 
-import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { FileWithPreview } from '../lib/types';
-import { v4 as uuidv4 } from 'uuid';
-import { Upload } from 'lucide-react';
-import FilePreview from './FilePreview';
+import React, { useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { FileWithPreview } from "../lib/types";
+import { v4 as uuidv4 } from "uuid";
+import { Upload } from "lucide-react";
+import FilePreview from "./FilePreview";
 
 interface DropzoneUploaderProps {
   files: FileWithPreview[];
   setFiles: React.Dispatch<React.SetStateAction<FileWithPreview[]>>;
 }
 
-export default function DropzoneUploader({ files, setFiles }: DropzoneUploaderProps) {
-  const [dragActive, setDragActive] = useState(false);
-
+export default function DropzoneUploader({
+  files,
+  setFiles,
+}: DropzoneUploaderProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       // Filter to only accept WebP files
       const webpFiles = acceptedFiles.filter(
-        (file) => file.type === 'image/webp'
+        (file) => file.type === "image/webp"
       );
 
       if (webpFiles.length < acceptedFiles.length) {
-        alert('Only WebP images are supported. Non-WebP files have been filtered out.');
+        alert(
+          "Only WebP images are supported. Non-WebP files have been filtered out."
+        );
       }
 
       const filesWithPreview = webpFiles.map((file) =>
@@ -41,7 +44,7 @@ export default function DropzoneUploader({ files, setFiles }: DropzoneUploaderPr
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/webp': ['.webp'],
+      "image/webp": [".webp"],
     },
     multiple: true,
   });
@@ -59,17 +62,17 @@ export default function DropzoneUploader({ files, setFiles }: DropzoneUploaderPr
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
           isDragActive
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
         }`}
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center justify-center space-y-2">
           <Upload className="h-12 w-12 text-gray-400" />
-          <p className="text-lg font-medium text-gray-700">Drop WebP images here</p>
-          <p className="text-sm text-gray-500">
-            or click to browse your files
+          <p className="text-lg font-medium text-gray-700">
+            Drop WebP images here
           </p>
+          <p className="text-sm text-gray-500">or click to browse your files</p>
         </div>
       </div>
 

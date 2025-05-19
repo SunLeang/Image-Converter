@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { ConvertedImage } from '../lib/types';
-import { Download, Maximize, X } from 'lucide-react';
+import React, { useState } from "react";
+import { ConvertedImage } from "../lib/types";
+import { Download, Maximize, X } from "lucide-react";
+import Image from "next/image";
 
 interface ImagePreviewProps {
   image: ConvertedImage;
@@ -15,23 +16,26 @@ export default function ImagePreview({ image, onDownload }: ImagePreviewProps) {
   const openModal = () => {
     setIsModalOpen(true);
     // Prevent background scrolling when modal is open
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     // Re-enable scrolling
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = "auto";
   };
 
   return (
     <>
       <div className="border rounded-lg overflow-hidden shadow-sm bg-white h-full flex flex-col">
         <div className="relative p-2 h-48 flex items-center justify-center bg-gray-100 group">
-          <img
+          <Image
             src={image.convertedUrl}
             alt={image.originalName}
-            className="max-h-full max-w-full object-contain cursor-pointer"
+            className="cursor-pointer"
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            style={{ objectFit: "contain" }}
             onClick={openModal}
           />
           <button
@@ -41,12 +45,15 @@ export default function ImagePreview({ image, onDownload }: ImagePreviewProps) {
             <Maximize className="h-6 w-6 text-white" />
           </button>
         </div>
-        
+
         <div className="p-3 border-t flex-grow">
-          <h4 className="text-gray-700 font-medium text-sm truncate" title={image.originalName}>
+          <h4
+            className="text-gray-700 font-medium text-sm truncate"
+            title={image.originalName}
+          >
             {image.originalName}
           </h4>
-          
+
           <div className="flex justify-between items-center mt-2">
             <div className="text-xs text-gray-500">
               <p>Format: {image.format.toUpperCase()}</p>
@@ -54,7 +61,7 @@ export default function ImagePreview({ image, onDownload }: ImagePreviewProps) {
             </div>
           </div>
         </div>
-        
+
         <div className="px-3 py-2 bg-gray-50 border-t">
           <button
             onClick={() => onDownload(image)}
@@ -76,22 +83,28 @@ export default function ImagePreview({ image, onDownload }: ImagePreviewProps) {
             >
               <X className="h-8 w-8" />
             </button>
-            
+
             <div className="bg-white p-4 rounded-lg">
-              <img
+              <Image
                 src={image.convertedUrl}
                 alt={image.originalName}
+                width={800}
+                height={600}
                 className="max-h-[80vh] max-w-full mx-auto"
+                style={{ objectFit: "contain", width: "auto", height: "auto" }}
               />
-              
+
               <div className="flex justify-between items-center mt-4">
                 <div>
-                  <h3 className="text-gray-700 font-medium">{image.originalName}</h3>
+                  <h3 className="text-gray-700 font-medium">
+                    {image.originalName}
+                  </h3>
                   <p className="text-sm text-gray-500">
-                    {image.format.toUpperCase()} · {(image.size / 1024).toFixed(1)} KB
+                    {image.format.toUpperCase()} ·{" "}
+                    {(image.size / 1024).toFixed(1)} KB
                   </p>
                 </div>
-                
+
                 <button
                   onClick={() => {
                     onDownload(image);

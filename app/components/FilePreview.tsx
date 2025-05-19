@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { FileWithPreview } from '../lib/types';
-import { X, FileImage } from 'lucide-react';
+import React from "react";
+import { FileWithPreview } from "../lib/types";
+import { X, FileImage } from "lucide-react";
+import Image from "next/image";
 
 interface FilePreviewProps {
   file: FileWithPreview;
@@ -13,11 +14,14 @@ export default function FilePreview({ file, onRemove }: FilePreviewProps) {
   return (
     <div className="relative group border rounded-lg overflow-hidden bg-white shadow-sm">
       <div className="h-40 flex items-center justify-center bg-gray-100 p-2">
-        {file.type === 'image/webp' ? (
-          <img 
-            src={file.preview} 
-            alt={file.name} 
+        {file.type === "image/webp" ? (
+          <Image
+            src={file.preview}
+            alt={file.name}
             className="max-h-full max-w-full object-contain"
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            style={{ objectFit: "contain" }}
           />
         ) : (
           <div className="flex flex-col items-center justify-center text-gray-400">
@@ -26,15 +30,18 @@ export default function FilePreview({ file, onRemove }: FilePreviewProps) {
           </div>
         )}
       </div>
-      
+
       <div className="p-3 border-t">
-        <h4 className="text-gray-700 font-medium text-sm truncate" title={file.name}>
+        <h4
+          className="text-gray-700 font-medium text-sm truncate"
+          title={file.name}
+        >
           {file.name}
         </h4>
         <p className="text-xs text-gray-500 mt-1">
           {(file.size / 1024).toFixed(1)} KB
         </p>
-        
+
         <button
           onClick={() => onRemove(file.id)}
           className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md text-gray-500 hover:text-red-500 transition-colors"
